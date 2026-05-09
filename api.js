@@ -10,6 +10,7 @@ const auth_api = require('./auth_api'); // 添加认证API
 const recycle_api = require('./recycle_api'); // 回收站API
 const ai_api = require('./ai_api'); // AI 代理API
 const theme_api = require('./theme_api'); // 主题市场API
+const mcp_api = require('./mcp_api'); // MCP Agent API
 const CircularJSON = require('circular-json');
 const crypto = require('crypto');
 const { expressjwt: jwt } = require('express-jwt'); // 确保引入 express-jwt
@@ -221,6 +222,15 @@ module.exports = async function (app, hexo) { // 将导出函数改为 async
             `${apiBasePath}/ai/settings`, // AI 设置接口
             `${apiBasePath}/ai/settings/save`, // AI 设置保存接口
             `${apiBasePath}/theme/schema/generate`, // 主题 Schema 生成接口
+            `${apiBasePath}/mcp/agent/posts/list`,
+            `${apiBasePath}/mcp/agent/posts/search`,
+            `${apiBasePath}/mcp/agent/posts/get`,
+            `${apiBasePath}/mcp/agent/posts/create-draft`,
+            `${apiBasePath}/mcp/agent/posts/update`,
+            `${apiBasePath}/mcp/agent/posts/publish`,
+            `${apiBasePath}/mcp/agent/posts/unpublish`,
+            `${apiBasePath}/mcp/agent/deploy/status`,
+            `${apiBasePath}/mcp/agent/deploy/execute`,
         ];
 
 
@@ -257,6 +267,7 @@ module.exports = async function (app, hexo) { // 将导出函数改为 async
         auth_api(app, hexo, use); // 注册认证API
         ai_api(app, hexo, use, db); // 注册 AI 代理API
         theme_api(app, hexo, use, db); // 注册主题市场API
+        mcp_api(app, hexo, use, db); // 注册 MCP Agent API
 
 
         app.use((err, req, res, next) => {

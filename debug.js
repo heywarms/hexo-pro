@@ -3,9 +3,10 @@ const path = require('path');
 const chokidar = require('chokidar');
 const browserSync = require('browser-sync').create();
 const { createRequire } = require('module');
+const { writeRuntimeFile } = require('../agent/base-url-resolver');
 
 const blogPath = path.resolve(
-  process.env.HEXO_BLOG_PATH || '/Users/warms/Workspace/code/node_project/blog'
+  process.env.HEXOPRO_BASE_DIR || process.env.HEXO_BLOG_PATH || '/Users/warms/Workspace/code/node_project/blog'
 );
 
 function ensureDebugRuntime(baseDir) {
@@ -62,6 +63,14 @@ async function startHexoServer() {
     open: 'external',
     ui: false,
     port: 8081,
+  }, () => {
+    const browserSyncUrl = 'http://127.0.0.1:8081';
+    writeRuntimeFile({
+      baseDir: hexo.base_dir,
+      baseUrl: browserSyncUrl,
+      serverUrl: 'http://127.0.0.1:8001'
+    });
+    console.log(`Hexo Pro runtime written for MCP clients: ${browserSyncUrl}`);
   });
 
   const themePath = path.join(hexo.base_dir, 'themes', currentTheme);
