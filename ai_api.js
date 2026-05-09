@@ -11,6 +11,40 @@ const DEFAULT_SYSTEM_PROMPT = `你是一位专业的 Hexo 博客创作助手。�
 5. 回复简洁实用，避免冗长开场白`;
 
 module.exports = function (app, hexo, use, db) {
+    const normalizeUpstreamErrorMessage = (payload, fallback = 'AI 请求失败，请检查配置') => {
+        if (!payload) return fallback;
+        if (typeof payload === 'string') return payload;
+        if (typeof payload?.error?.message === 'string' && payload.error.message.trim()) {
+            return payload.error.message.trim();
+        }
+        if (typeof payload?.message === 'string' && payload.message.trim()) {
+            return payload.message.trim();
+        }
+        if (typeof payload?.msg === 'string' && payload.msg.trim()) {
+            return payload.msg.trim();
+        }
+        return fallback;
+    };
+
+    const readStreamBodyAsText = (streamData) => {
+        return new Promise((resolve, reject) => {
+            if (!streamData || typeof streamData.on !== 'function') {
+                resolve('');
+                return;
+            }
+            const chunks = [];
+            streamData.on('data', (chunk) => {
+                chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk)));
+            });
+            streamData.on('end', () => {
+                resolve(Buffer.concat(chunks).toString('utf-8'));
+            });
+            streamData.on('error', (err) => {
+                reject(err);
+            });
+        });
+    };
+
     // AI 聊天代理接口 - 从后端读取配置，解决 CORS 问题
     use('ai/chat', async function (req, res) {
         console.log('[Hexo Pro AI Proxy]: 收到请求');
@@ -56,13 +90,6 @@ module.exports = function (app, hexo, use, db) {
 
         try {
             if (isStream) {
-                // 流式响应处理
-                res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
-                res.setHeader('Cache-Control', 'no-cache');
-                res.setHeader('Connection', 'keep-alive');
-                res.setHeader('X-Accel-Buffering', 'no'); // 禁用 nginx 缓冲
-                res.flushHeaders(); // 立即刷新 headers
-
                 const response = await axios({
                     method: 'post',
                     url: url,
@@ -77,6 +104,32 @@ module.exports = function (app, hexo, use, db) {
                 });
 
                 console.log('[Hexo Pro AI Proxy]: 上游响应状态:', response.status);
+
+                if (response.status >= 400) {
+                    let upstreamPayload = response.data;
+                    // responseType=stream 时，4xx 的响应体仍是可读流，需要先读取再解析
+                    if (response.data && typeof response.data.on === 'function') {
+                        try {
+                            const raw = await readStreamBodyAsText(response.data);
+                            upstreamPayload = raw ? JSON.parse(raw) : raw;
+                        } catch (_) {
+                            upstreamPayload = response.data;
+                        }
+                    }
+                    const upstreamMsg = normalizeUpstreamErrorMessage(upstreamPayload, 'AI 请求失败，请检查 AI 参数配置');
+                    return res.send(response.status, {
+                        code: response.status,
+                        msg: `AI 配置或请求参数错误：${upstreamMsg}`,
+                        detail: upstreamPayload
+                    });
+                }
+
+                // 流式响应处理
+                res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+                res.setHeader('Cache-Control', 'no-cache');
+                res.setHeader('Connection', 'keep-alive');
+                res.setHeader('X-Accel-Buffering', 'no'); // 禁用 nginx 缓冲
+                res.flushHeaders(); // 立即刷新 headers
 
                 // 使用纯事件驱动，不再 await 整个 Promise
                 let streamEnded = false;
@@ -133,6 +186,17 @@ module.exports = function (app, hexo, use, db) {
                 });
 
                 console.log('[Hexo Pro AI Proxy]: 上游响应状态:', response.status);
+                if (response.status >= 400) {
+                    const upstreamMsg = normalizeUpstreamErrorMessage(
+                        response.data,
+                        'AI 请求失败，请检查 AI 参数配置'
+                    );
+                    return res.send(response.status, {
+                        code: response.status,
+                        msg: `AI 配置或请求参数错误：${upstreamMsg}`,
+                        detail: response.data
+                    });
+                }
                 res.done(response.data);
             }
 
