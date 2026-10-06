@@ -10,7 +10,9 @@ const auth_api = require('./auth_api'); // 添加认证API
 const recycle_api = require('./recycle_api'); // 回收站API
 const ai_api = require('./ai_api'); // AI 代理API
 const theme_api = require('./theme_api'); // 主题市场API
+const { getLiveHexo } = require('./theme_runtime');
 const mcp_api = require('./mcp_api'); // MCP Agent API
+const sync_api = require('./sync_api'); // GitHub 云同步API
 const CircularJSON = require('circular-json');
 const crypto = require('crypto');
 const { expressjwt: jwt } = require('express-jwt'); // 确保引入 express-jwt
@@ -31,6 +33,7 @@ function promisifyNeDB(db, method, ...args) {
 }
 
 module.exports = async function (app, hexo) { // 将导出函数改为 async
+    hexo = getLiveHexo(hexo);
 
     app.use('/hexopro/api', bodyParser.json({ limit: '50mb' }));
     app.use('/hexopro/api', bodyParser.urlencoded({ extended: true }));
@@ -268,6 +271,7 @@ module.exports = async function (app, hexo) { // 将导出函数改为 async
         ai_api(app, hexo, use, db); // 注册 AI 代理API
         theme_api(app, hexo, use, db); // 注册主题市场API
         mcp_api(app, hexo, use, db); // 注册 MCP Agent API
+        sync_api(app, hexo, use, db); // 注册 GitHub 云同步API
 
 
         app.use((err, req, res, next) => {

@@ -3,6 +3,7 @@ const fs = require('hexo-fs');
 const fse = require('fs-extra');
 const { exec } = require('child_process');
 const yaml = require('js-yaml');
+const { getLiveHexo, switchTheme } = require('./theme_runtime');
 
 /**
  * 清理 public 目录，确保静态文件重新生成
@@ -353,6 +354,7 @@ async function applyThemeConfigContent(hexo, baseDir, theme, content) {
 }
 
 module.exports = function (app, hexo, use, db) {
+  hexo = getLiveHexo(hexo);
   // 获取内置主题列表
   use('theme/list', function (req, res) {
     try {
@@ -800,8 +802,8 @@ module.exports = function (app, hexo, use, db) {
   });
 
   // 切换主题
-  use('theme/switch', function (req, res) {
-    if (req.method !== 'POST') return;
+  use('theme/switch', async function (req, res) {
+    if (req.method !== 'POST') return res.send(405, '仅支持 POST 方法');
 
     const { themeId } = req.body || {};
     if (!themeId) {
@@ -822,60 +824,10 @@ module.exports = function (app, hexo, use, db) {
     }
 
     try {
-      // 更新 _config.yml 的 theme 字段
-      const configPath = path.join(baseDir, '_config.yml');
-      let configContent = fse.readFileSync(configPath, 'utf-8');
-      let config;
-      try {
-        config = yaml.load(configContent);
-      } catch (e) {
-        hexo.log.error('解析 _config.yml 失败:', e);
-        return res.send(500, '解析站点配置失败');
-      }
-
-      // 检查是否已经是当前主题
-      if (config.theme === theme.themeDir) {
-        // _config.yml 已经是目标主题，但当前运行中的 hexo.config 可能尚未同步（常见于安装后未重启）
-        const needRestart = hexo.config.theme !== theme.themeDir;
-        if (needRestart) {
-          hexo.config.theme = theme.themeDir;
-        }
-
-        return res.done({
-          success: true,
-          message: needRestart ? '主题已切换，重启后生效' : '已经是当前主题',
-          themeDir: theme.themeDir,
-          needRestart,
-        });
-      }
-
-      config.theme = theme.themeDir;
-      fse.writeFileSync(configPath, yaml.dump(config), 'utf-8');
-      hexo.log.info(`[Theme] 已切换主题为 ${theme.themeDir}`);
-
-      // 更新内存中的配置，确保后续查询能获取正确的当前主题
-      hexo.config.theme = theme.themeDir;
-
-      // 复制主题配置到根目录作为覆盖配置（如果不存在）
-      const themeConfigSrc = path.join(themePath, '_config.yml');
-      const themeConfigDest = path.join(baseDir, theme.configFile);
-      let configCopied = false;
-      if (fs.existsSync(themeConfigSrc) && !fs.existsSync(themeConfigDest)) {
-        fse.copyFileSync(themeConfigSrc, themeConfigDest);
-        hexo.log.info(`[Theme] 已创建覆盖配置文件 ${theme.configFile}`);
-        configCopied = true;
-      }
-
-      res.done({
-        success: true,
-        message: '主题切换成功',
-        themeDir: theme.themeDir,
-        configCopied,
-        needRestart: true, // 标记需要重启才能生效
-      });
+      res.done(await switchTheme(hexo, theme));
     } catch (error) {
       hexo.log.error('[Theme] 切换失败:', error.message);
-      res.send(500, error.message || '主题切换失败');
+      res.send(error.statusCode || 500, error.message || '主题切换失败');
     }
   });
 
