@@ -191,6 +191,9 @@ async function switchTheme(hexo, theme) {
     previous._generate = () => Promise.resolve();
     Object.defineProperty(next, RUNTIME, { value: runtime });
     runtime.current = next;
+    // Hexo only writes db.json on exit. Until then it still lists the old theme's
+    // assets, and `hexo generate` in another process would publish them.
+    await next.database.save().catch(error => next.log.warn('主题数据库保存失败:', error.message));
     if (hadPublic) {
       await fs.remove(backupDir).catch(error => next.log.warn('旧主题输出清理失败:', error.message));
     }
