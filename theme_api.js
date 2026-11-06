@@ -69,6 +69,9 @@ function writeSchemaFileWithMeta(baseDir, themeId, schema, configHash, language)
 }
 
 // 内置主题列表
+// branch 会传给 git clone -b，也可以填 tag。上游分支可能改名或升级大版本，
+// 所以需要特定依赖或配置的主题固定到验证过的 tag。
+// dependencies 装到博客根目录，Hexo 只从那里加载插件（如渲染器）；installThemePackages 把主题自己的依赖装到主题目录。
 const BUILTIN_THEMES = [
   {
     id: 'anzhiyu',
@@ -124,9 +127,11 @@ const BUILTIN_THEMES = [
     description: '综合型主题（博客 + 知识库 + 专栏 + 笔记），组件化设计，内置海量标签 / 数据组件；适合搭建个人知识体系、多内容形态的站点，更新活跃，中文生态好。',
     author: 'xaoxuu',
     repo: 'https://github.com/xaoxuu/hexo-theme-stellar.git',
-    branch: 'main',
+    branch: '1.44.0',
     installType: 'git',
-    dependencies: [],
+    dependencies: ['hexo-renderer-ejs@^2.0.0', 'hexo-renderer-stylus@^3.0.1'],
+    // 需要的 glob、cheerio 比 Hexo 7 自带的新。装到根目录会替换正在使用的包，当前进程要重启才能切换
+    installThemePackages: true,
     configFile: '_config.stellar.yml',
     themeDir: 'stellar',
   },
@@ -136,13 +141,23 @@ const BUILTIN_THEMES = [
     description: '模块化、高自由度，卡片式布局 + 丰富的 shortcode；适合喜欢折腾、追求个性化展示的博主，支持多种插件与评论系统，文档详细。',
     author: 'volantis-x',
     repo: 'https://github.com/volantis-x/hexo-theme-volantis.git',
-    branch: '7.x',
+    branch: 'v6.8.3',
     installType: 'git',
-    dependencies: [],
+    dependencies: ['hexo-generator-json-content@^4.2.3', 'hexo-renderer-ejs@^2.0.0', 'hexo-renderer-stylus@^3.0.1'],
+    // 默认的 debug: env 会调用全局 hexo 命令检查环境，没有全局 hexo-cli 时整个服务会退出
+    configDefaults: { debug: false },
     configFile: '_config.volantis.yml',
     themeDir: 'volantis',
   },
 ];
+
+// 把主题配置里的顶层配置项改成目录指定的值，文件其余内容保持原样
+function applyConfigDefaults(content, defaults = {}) {
+  return Object.entries(defaults).reduce(
+    (text, [key, value]) => text.replace(new RegExp(`^${key}:.*$`, 'm'), `${key}: ${value}`),
+    content,
+  );
+}
 
 const SNAPSHOT_STORE_DIR = '.hexo-pro/theme-config-snapshots'
 const MAX_THEME_CONFIG_SNAPSHOTS = 30
@@ -410,19 +425,22 @@ module.exports = function (app, hexo, use, db) {
 
         // 1. git clone
         hexo.log.info(`[Theme] 正在克隆主题 ${theme.name}...`);
-        await runTool('git', ['clone', '-b', theme.branch, '--', theme.repo, themePath], { cwd: baseDir });
+        await runTool('git', ['clone', '--depth', '1', '-b', theme.branch, '--', theme.repo, themePath], { cwd: baseDir });
 
         // 2. 安装依赖
         if (theme.dependencies && theme.dependencies.length > 0) {
           hexo.log.info(`[Theme] 正在安装主题依赖...`);
           await runTool('npm', ['install', '--save', '--no-audit', '--no-fund', ...theme.dependencies], { cwd: baseDir });
         }
+        if (theme.installThemePackages) {
+          await runTool('npm', ['install', '--omit=dev', '--no-audit', '--no-fund'], { cwd: themePath });
+        }
 
         // 3. 复制主题配置到根目录作为覆盖配置
         const themeConfigSrc = path.join(themePath, '_config.yml');
         const themeConfigDest = path.join(baseDir, theme.configFile);
         if (fs.existsSync(themeConfigSrc) && !fs.existsSync(themeConfigDest)) {
-          fse.copyFileSync(themeConfigSrc, themeConfigDest);
+          fse.writeFileSync(themeConfigDest, applyConfigDefaults(fse.readFileSync(themeConfigSrc, 'utf8'), theme.configDefaults));
           hexo.log.info(`[Theme] 已创建覆盖配置文件 ${theme.configFile}`);
         }
 
@@ -434,6 +452,8 @@ module.exports = function (app, hexo, use, db) {
         });
       } catch (error) {
         hexo.log.error('[Theme] 安装失败:', error.message);
+        // 目录留着会被当成已安装，缺的依赖就再也装不上了（开头已确认这个目录是本次新建的）
+        fse.removeSync(themePath);
         res.send(500, error.message || '主题安装失败');
       }
     })();
