@@ -1,9 +1,11 @@
 const path = require('path');
 const fs = require('hexo-fs');
 const fse = require('fs-extra');
-const { exec } = require('child_process');
+const { runTool } = require('./process-tools');
 const yaml = require('js-yaml');
 const { getLiveHexo, switchTheme } = require('./theme_runtime');
+const { listThemes, findTheme } = require('./theme_catalog');
+const { deepMerge } = require('hexo-util');
 
 /**
  * 清理 public 目录，确保静态文件重新生成
@@ -43,7 +45,8 @@ function extractSchemaFromFileContent(fullObj) {
  * 读取 schema 文件，若 _meta.configHash 匹配则返回 schema
  */
 function readSchemaFileWithMeta(baseDir, themeId) {
-  const schemaPath = getSchemaFilePath(baseDir, themeId)
+  const overridePath = getSchemaFilePath(baseDir, themeId)
+  const schemaPath = fs.existsSync(overridePath) ? overridePath : path.join(baseDir, 'themes', themeId, '_config.schema.json')
   if (!fs.existsSync(schemaPath)) return null
   try {
     const content = fse.readFileSync(schemaPath, 'utf-8')
@@ -66,6 +69,9 @@ function writeSchemaFileWithMeta(baseDir, themeId, schema, configHash, language)
 }
 
 // 内置主题列表
+// branch 会传给 git clone -b，也可以填 tag。上游分支可能改名或升级大版本，
+// 所以需要特定依赖或配置的主题固定到验证过的 tag。
+// dependencies 装到博客根目录，Hexo 只从那里加载插件（如渲染器）；installThemePackages 把主题自己的依赖装到主题目录。
 const BUILTIN_THEMES = [
   {
     id: 'anzhiyu',
@@ -121,9 +127,11 @@ const BUILTIN_THEMES = [
     description: '综合型主题（博客 + 知识库 + 专栏 + 笔记），组件化设计，内置海量标签 / 数据组件；适合搭建个人知识体系、多内容形态的站点，更新活跃，中文生态好。',
     author: 'xaoxuu',
     repo: 'https://github.com/xaoxuu/hexo-theme-stellar.git',
-    branch: 'main',
+    branch: '1.44.0',
     installType: 'git',
-    dependencies: [],
+    dependencies: ['hexo-renderer-ejs@^2.0.0', 'hexo-renderer-stylus@^3.0.1'],
+    // 需要的 glob、cheerio 比 Hexo 7 自带的新。装到根目录会替换正在使用的包，当前进程要重启才能切换
+    installThemePackages: true,
     configFile: '_config.stellar.yml',
     themeDir: 'stellar',
   },
@@ -133,24 +141,22 @@ const BUILTIN_THEMES = [
     description: '模块化、高自由度，卡片式布局 + 丰富的 shortcode；适合喜欢折腾、追求个性化展示的博主，支持多种插件与评论系统，文档详细。',
     author: 'volantis-x',
     repo: 'https://github.com/volantis-x/hexo-theme-volantis.git',
-    branch: '7.x',
+    branch: 'v6.8.3',
     installType: 'git',
-    dependencies: [],
+    dependencies: ['hexo-generator-json-content@^4.2.3', 'hexo-renderer-ejs@^2.0.0', 'hexo-renderer-stylus@^3.0.1'],
+    // 默认的 debug: env 会调用全局 hexo 命令检查环境，没有全局 hexo-cli 时整个服务会退出
+    configDefaults: { debug: false },
     configFile: '_config.volantis.yml',
     themeDir: 'volantis',
   },
 ];
 
-function execPromise(command, options = {}) {
-  return new Promise((resolve, reject) => {
-    exec(command, { cwd: options.cwd || process.cwd(), timeout: 120000, ...options }, (error, stdout, stderr) => {
-      if (error) {
-        reject(new Error(stderr || stdout || error.message));
-      } else {
-        resolve(stdout);
-      }
-    });
-  });
+// 把主题配置里的顶层配置项改成目录指定的值，文件其余内容保持原样
+function applyConfigDefaults(content, defaults = {}) {
+  return Object.entries(defaults).reduce(
+    (text, [key, value]) => text.replace(new RegExp(`^${key}:.*$`, 'm'), `${key}: ${value}`),
+    content,
+  );
 }
 
 const SNAPSHOT_STORE_DIR = '.hexo-pro/theme-config-snapshots'
@@ -268,8 +274,8 @@ function isThemeInstalled(baseDir, theme) {
   return fs.existsSync(themePath)
 }
 
-function getThemeById(themeId) {
-  return BUILTIN_THEMES.find((t) => t.id === themeId)
+function getThemeById(baseDir, themeId) {
+  return findTheme(baseDir, BUILTIN_THEMES, themeId)
 }
 
 function formatYamlParseError(error) {
@@ -314,13 +320,13 @@ async function applyThemeConfigContent(hexo, baseDir, theme, content) {
 
   try {
     const newThemeConfig = yaml.load(content) || {}
-    if (newThemeConfig && typeof newThemeConfig === 'object') {
-      hexo.config.theme_config = Object.assign({}, hexo.config.theme_config, newThemeConfig)
-      if (hexo.theme && hexo.theme.config) {
-        hexo.theme.config = Object.assign({}, hexo.theme.config, newThemeConfig)
-      }
-      hexo.log.info('主题配置已在内存中热更新')
-    }
+    const defaults = yaml.load(fse.readFileSync(path.join(baseDir, 'themes', theme.themeDir, '_config.yml'), 'utf8')) || {}
+    const siteConfig = yaml.load(readGlobalConfigContent(baseDir)) || {}
+    // Rebuild from files: removed keys fall back to defaults, and site-level
+    // theme_config keeps the same priority as a fresh Hexo startup.
+    hexo.config.theme_config = deepMerge(newThemeConfig, siteConfig.theme_config || {})
+    hexo.theme.config = deepMerge(defaults, hexo.config.theme_config)
+    hexo.log.info('主题配置已在内存中热更新')
   } catch (err) {
     hexo.log.warn('解析主题配置失败，已保存文件:', err.message)
   }
@@ -358,7 +364,7 @@ module.exports = function (app, hexo, use, db) {
   // 获取内置主题列表
   use('theme/list', function (req, res) {
     try {
-      res.done(BUILTIN_THEMES);
+      res.done(listThemes(hexo.base_dir, BUILTIN_THEMES));
     } catch (error) {
       hexo.log.error('获取主题列表失败:', error);
       res.send(500, '获取主题列表失败');
@@ -379,7 +385,7 @@ module.exports = function (app, hexo, use, db) {
         name: themeName,
         installed,
         builtin: !!builtin,
-        themeInfo: builtin || null,
+        themeInfo: getThemeById(hexo.base_dir, themeName) || null,
       });
     } catch (error) {
       hexo.log.error('获取当前主题失败:', error);
@@ -419,19 +425,22 @@ module.exports = function (app, hexo, use, db) {
 
         // 1. git clone
         hexo.log.info(`[Theme] 正在克隆主题 ${theme.name}...`);
-        await execPromise(`git clone -b ${theme.branch} ${theme.repo} "${themePath}"`, { cwd: baseDir });
+        await runTool('git', ['clone', '--depth', '1', '-b', theme.branch, '--', theme.repo, themePath], { cwd: baseDir });
 
         // 2. 安装依赖
         if (theme.dependencies && theme.dependencies.length > 0) {
           hexo.log.info(`[Theme] 正在安装主题依赖...`);
-          await execPromise(`npm install ${theme.dependencies.join(' ')} --save`, { cwd: baseDir });
+          await runTool('npm', ['install', '--save', '--no-audit', '--no-fund', ...theme.dependencies], { cwd: baseDir });
+        }
+        if (theme.installThemePackages) {
+          await runTool('npm', ['install', '--omit=dev', '--no-audit', '--no-fund'], { cwd: themePath });
         }
 
         // 3. 复制主题配置到根目录作为覆盖配置
         const themeConfigSrc = path.join(themePath, '_config.yml');
         const themeConfigDest = path.join(baseDir, theme.configFile);
         if (fs.existsSync(themeConfigSrc) && !fs.existsSync(themeConfigDest)) {
-          fse.copyFileSync(themeConfigSrc, themeConfigDest);
+          fse.writeFileSync(themeConfigDest, applyConfigDefaults(fse.readFileSync(themeConfigSrc, 'utf8'), theme.configDefaults));
           hexo.log.info(`[Theme] 已创建覆盖配置文件 ${theme.configFile}`);
         }
 
@@ -443,6 +452,8 @@ module.exports = function (app, hexo, use, db) {
         });
       } catch (error) {
         hexo.log.error('[Theme] 安装失败:', error.message);
+        // 目录留着会被当成已安装，缺的依赖就再也装不上了（开头已确认这个目录是本次新建的）
+        fse.removeSync(themePath);
         res.send(500, error.message || '主题安装失败');
       }
     })();
@@ -455,7 +466,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID');
     }
 
-    const theme = getThemeById(themeId);
+    const theme = getThemeById(hexo.base_dir, themeId);
     if (!theme) {
       return res.send(404, '主题不存在');
     }
@@ -483,7 +494,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID或配置内容');
     }
 
-    const theme = getThemeById(themeId);
+    const theme = getThemeById(hexo.base_dir, themeId);
     if (!theme) {
       return res.send(404, '主题不存在');
     }
@@ -534,7 +545,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID');
     }
 
-    const theme = getThemeById(themeId);
+    const theme = getThemeById(hexo.base_dir, themeId);
     if (!theme) {
       return res.send(404, '主题不存在');
     }
@@ -559,7 +570,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID')
     }
 
-    const theme = getThemeById(themeId)
+    const theme = getThemeById(hexo.base_dir, themeId)
     if (!theme) {
       return res.send(404, '主题不存在')
     }
@@ -602,7 +613,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID或快照ID')
     }
 
-    const theme = getThemeById(themeId)
+    const theme = getThemeById(hexo.base_dir, themeId)
     if (!theme) {
       return res.send(404, '主题不存在')
     }
@@ -786,7 +797,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID');
     }
 
-    const theme = BUILTIN_THEMES.find((t) => t.id === themeId);
+    const theme = getThemeById(hexo.base_dir, themeId);
     if (!theme) {
       return res.done({ installed: false });
     }
@@ -810,7 +821,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID');
     }
 
-    const theme = BUILTIN_THEMES.find((t) => t.id === themeId);
+    const theme = getThemeById(hexo.base_dir, themeId);
     if (!theme) {
       return res.send(404, '主题不存在');
     }
@@ -838,7 +849,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID')
     }
 
-    const theme = BUILTIN_THEMES.find((t) => t.id === themeId)
+    const theme = getThemeById(hexo.base_dir, themeId)
     if (!theme) {
       return res.send(404, '主题不存在')
     }
@@ -868,7 +879,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID或 Schema')
     }
 
-    const theme = BUILTIN_THEMES.find((t) => t.id === themeId)
+    const theme = getThemeById(hexo.base_dir, themeId)
     if (!theme) {
       return res.send(404, '主题不存在')
     }
@@ -901,7 +912,7 @@ module.exports = function (app, hexo, use, db) {
       return res.send(400, '缺少主题ID');
     }
 
-    const theme = BUILTIN_THEMES.find((t) => t.id === themeId);
+    const theme = getThemeById(hexo.base_dir, themeId);
     if (!theme) {
       return res.send(404, '主题不存在');
     }

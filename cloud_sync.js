@@ -50,13 +50,14 @@ function mergeIdentities(base, local, remote) {
   } catch { return null; }
 }
 
-function makePlan(base, local, remote, identityRaw) {
+function makePlan(base, local, remote, identityRaw, mode = 'sync') {
   const changes = [];
   for (const name of new Set([...Object.keys(base || {}), ...local.keys(), ...remote.keys()])) {
     const l = local.get(name), r = remote.get(name), b = base?.[name];
     if (same(l, r)) continue;
     let direction;
-    if (!base) direction = !r ? 'upload' : !l ? 'download' : 'conflict';
+    if (mode === 'restore') direction = 'download';
+    else if (!base) direction = !r ? 'upload' : !l ? 'download' : 'conflict';
     else direction = same(l, b) ? 'download' : same(r, b) ? 'upload' : 'conflict';
     let merged;
     if (direction === 'conflict' && name === IDENTITY_PATH && l && r) {
@@ -72,7 +73,18 @@ function createCloudSync(baseDir, options = {}) {
   baseDir = path.resolve(baseDir);
   const runCommand = options.runCommand || runCommandDefault;
   const publicDir = options.publicDir || path.join(baseDir, 'public');
-  let pending;
+  // Keep one review per mode so inspecting a restore does not replace a sync plan.
+  const pending = new Map();
+  const findPlan = id => [...pending.values()].find(plan => plan.id === id);
+  const sameConnection = (a, b) => a.repository === b.repository && a.branch === b.branch && a.githubToken === b.githubToken;
+
+  async function discardPlans(matches = () => true) {
+    for (const [mode, plan] of pending) {
+      if (!matches(plan)) continue;
+      pending.delete(mode);
+      await fs.rm(plan.directory, { recursive: true, force: true });
+    }
+  }
 
   function validate(config) {
     const repository = normalizeRepository(config.repository);
@@ -122,11 +134,22 @@ function createCloudSync(baseDir, options = {}) {
     return head;
   }
 
-  async function snapshot(directory, destination, ctx) {
+  async function snapshot(directory, destination, ctx, restoreRemote = false) {
     await fs.mkdir(destination, { recursive: true });
     await ctx.git(destination, ['init']);
-    const relativePublic = path.relative(baseDir, publicDir);
-    const names = await copySourceProject(directory, destination, { publicDir: path.join(directory, relativePublic) });
+    let relativePublic = path.relative(baseDir, publicDir);
+    if (restoreRemote) {
+      const configFile = path.join(directory, '_config.yml');
+      if ((await fs.lstat(configFile).catch(() => null))?.isFile()) {
+        const settings = yaml.load(await fs.readFile(configFile, 'utf8'));
+        relativePublic = settings?.public_dir || 'public';
+      }
+    }
+    // The freshly fetched checkout contains tracked files only. Its ignore rules
+    // must not hide tracked themes/configuration during an authoritative restore.
+    const names = await copySourceProject(directory, destination, {
+      publicDir: path.resolve(directory, relativePublic), respectGitIgnore: !restoreRemote
+    });
     const files = new Map();
     for (const name of names) {
       const file = path.join(destination, name), stat = await fs.lstat(file);
@@ -164,24 +187,35 @@ function createCloudSync(baseDir, options = {}) {
     return head;
   }
 
-  async function preview(config) {
+  async function preview(config, mode = 'sync') {
+    if (!['sync', 'restore'].includes(mode)) throw fail('请选择双向同步或从 GitHub 恢复');
     config = validate(config);
     const ctx = context(config);
     await fs.mkdir(ctx.root, { recursive: true, mode: 0o700 });
     if (await readState(path.join(ctx.root, 'recovery.json'))) throw fail('上一次同步中断，本机原文件备份仍保留在 .hexo-pro/cloud-sync 中，请先恢复后再同步');
-    if (pending) { await fs.rm(pending.directory, { recursive: true, force: true }); pending = null; }
+    await discardPlans(plan => !sameConnection(plan.config, config));
     const head = await refreshRemote(config, ctx, await openRemote(config, ctx));
     // Clean only the app-owned checkout; never the user's blog directory.
     const directory = await fs.mkdtemp(path.join(ctx.root, 'preview-'));
     try {
       const local = await snapshot(baseDir, path.join(directory, 'local'), ctx);
-      const remote = head ? await snapshot(ctx.remoteDir, path.join(directory, 'remote'), ctx) : new Map();
-      const excluded = await ignoredFiles(baseDir, path.join(directory, 'local', '.git'), [...remote.keys()]);
-      for (const name of excluded) if (name !== IDENTITY_PATH && name !== '.gitignore') remote.delete(name);
+      const remote = head ? await snapshot(ctx.remoteDir, path.join(directory, 'remote'), ctx, mode === 'restore') : new Map();
+      if (mode === 'restore') {
+        if (!head) throw fail('GitHub 仓库还是空的，没有可以恢复的博客');
+        let manifest;
+        try { manifest = JSON.parse(remote.get('package.json')?.bytes.toString()); } catch { /* Report a source-repository error below. */ }
+        if (!remote.has('_config.yml') || !(manifest?.dependencies?.hexo || manifest?.devDependencies?.hexo)) {
+          throw fail('请选择包含 _config.yml 和 Hexo package.json 的源码仓库或分支，不能从网站发布目录恢复');
+        }
+      } else {
+        const excluded = await ignoredFiles(baseDir, path.join(directory, 'local', '.git'), [...remote.keys()]);
+        for (const name of excluded) if (name !== IDENTITY_PATH && name !== '.gitignore') remote.delete(name);
+      }
       const state = await readState(ctx.stateFile);
-      const changes = makePlan(state?.files, local, remote, state?.identityRaw);
+      const changes = makePlan(state?.files, local, remote, state?.identityRaw, mode);
       const indexChange = changes.find(change => change.path === IDENTITY_PATH);
-      if (indexChange?.direction !== 'conflict') {
+      // A restore must never upload template files or rewrite the remote identity index.
+      if (mode === 'sync' && indexChange?.direction !== 'conflict') {
         const currentIndex = indexChange?.merged || (indexChange?.direction === 'download' ? remote.get(IDENTITY_PATH) : local.get(IDENTITY_PATH)) || remote.get(IDENTITY_PATH);
         const identities = parseIdentities(currentIndex?.bytes);
         const known = new Set(identities.documents.map(record => record.source));
@@ -202,8 +236,11 @@ function createCloudSync(baseDir, options = {}) {
           if (indexChange) Object.assign(indexChange, change); else changes.push(change);
         }
       }
-      pending = { id: randomUUID(), config, ctx, directory, head, local, remote, changes, state };
-      return { id: pending.id, firstSync: !state, repository: config.repository, branch: config.branch,
+      const plan = { id: randomUUID(), config, ctx, directory, head, local, remote, changes, state, mode };
+      // Replace this mode only after its new preview succeeds.
+      await discardPlans(previous => previous.mode === mode);
+      pending.set(mode, plan);
+      return { id: plan.id, mode, firstSync: !state, repository: config.repository, branch: config.branch,
         localCount: local.size, remoteCount: remote.size,
         changes: changes.map(({ merged, ...change }) => change),
         uploadCount: changes.filter(c => c.direction === 'upload' || c.direction === 'merge').length,
@@ -249,8 +286,8 @@ function createCloudSync(baseDir, options = {}) {
 
   async function apply(config, id, resolutions = {}) {
     config = validate(config);
-    const plan = pending;
-    if (!plan || plan.id !== id || plan.config.repository !== config.repository || plan.config.branch !== config.branch || plan.config.githubToken !== config.githubToken) throw fail('同步预览已过期，请重新检查变更');
+    const plan = findPlan(id);
+    if (!plan || !sameConnection(plan.config, config)) throw fail('同步预览已过期，请重新检查变更');
     const { ctx, local, remote, changes, directory } = plan;
     const uploads = new Map(), downloads = new Map(), nextRemote = new Map(remote);
     for (const change of changes) {
@@ -284,7 +321,8 @@ function createCloudSync(baseDir, options = {}) {
         try { lock = await fs.open(lockPath, 'wx'); await lock.writeFile(String(process.pid)); }
         catch { throw fail('文章索引正在保存，请稍后重新检查变更'); }
       }
-      pending = null;
+      // Either operation can change both snapshots, including a partially failed apply.
+      await discardPlans();
       for (const [name, value] of uploads) await writeFile(ctx.remoteDir, name, value);
       let head = plan.head;
       if (uploads.size) {
@@ -329,8 +367,7 @@ function createCloudSync(baseDir, options = {}) {
       await fs.writeFile(temporary, JSON.stringify(state), { mode: 0o600 });
       await fs.rename(temporary, ctx.stateFile);
       await fs.rm(journal, { force: true });
-      pending = null;
-      return { success: true, uploaded: uploads.size, downloaded: downloads.size, lastSyncTime: state.lastSyncTime, backupDir: downloads.size ? backupDir : null };
+      return { success: true, mode: plan.mode, uploaded: uploads.size, downloaded: downloads.size, lastSyncTime: state.lastSyncTime, backupDir: downloads.size ? backupDir : null };
     } finally { if (lock) { await lock.close(); await fs.rm(lockPath, { force: true }); } }
   }
 
@@ -353,16 +390,17 @@ function createCloudSync(baseDir, options = {}) {
   }
 
   function diff(id, name) {
-    if (!pending || pending.id !== id || !pending.changes.some(change => change.path === name)) throw fail('同步预览已过期，请重新检查变更');
+    const plan = findPlan(id);
+    if (!plan || !plan.changes.some(change => change.path === name)) throw fail('同步预览已过期，请重新检查变更');
     const content = file => {
       if (!file) return '（文件不存在）';
       if (file.bytes.length > 200000 || file.bytes.includes(0)) return '（此文件较大或为二进制文件，请在文件管理器中查看）';
       return file.bytes.toString('utf8');
     };
-    return { path: name, local: content(pending.local.get(name)), remote: content(pending.remote.get(name)) };
+    return { path: name, local: content(plan.local.get(name)), remote: content(plan.remote.get(name)) };
   }
 
-  return { check: config => withLock(config, () => check(config)), preview: config => withLock(config, () => preview(config)),
+  return { check: config => withLock(config, () => check(config)), preview: (config, mode) => withLock(config, () => preview(config, mode)),
     apply: (config, id, choices) => withLock(config, () => apply(config, id, choices)), diff };
 }
 

@@ -79,7 +79,17 @@ hexo.extend.filter.register('before_generate', function () {
     // 在生成之前执行的逻辑
 });
 
+// 与 Hexo 核心判断方式一致：通过别名表识别，`hexo s` 这类缩写也算 server。
+function isServerCommand() {
+    const { cmd } = hexo.env;
+    return Boolean(cmd) && hexo.extend.console.alias[cmd.toLowerCase()] === 'server';
+}
+
 hexo.extend.filter.register('after_init', async function () {
+    // 只有后台 API 需要在 server_middleware 之前拿到数据，其他命令不能在这里 load：
+    // load 过的实例退出时会写回 db.json，`hexo clean` 刚删除的数据库会因此重新出现。
+    // 需要数据的命令（generate、deploy 等）和桌面端都会自行调用 load。
+    if (!isServerCommand()) return;
     await hexo.load(); // 确保所有数据已加载
     // 将博客数据写入到文件当中
     buildIndex();
