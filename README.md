@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <strong>给 Hexo 博客配一个可视化后台。</strong><br>
-  在界面里写文章、换主题、传图片、发布网站，不用记命令。
+  <strong>Hexo Pro，一个可视化的 Hexo 博客后台</strong><br>
+  支持文章编辑、主题预览与切换、图片管理和一键部署。
 </p>
 
 <p align="center">
@@ -22,35 +22,39 @@
   <a href="./README_en.md">English</a>
 </p>
 
-## 能帮你做什么
+## 功能
 
-Hexo 很好用，但写文章、改配置、部署要在文件和命令行之间来回切换。Hexo Pro 把这些事放进同一个界面，文章仍然是你博客里的 Markdown 文件。
+Hexo Pro 是 Hexo 的可视化管理工具，文章编辑、主题配置和站点部署都可以在界面中完成。文章仍以 Markdown 文件保存在博客目录中。
 
-| 想做的事 | Hexo Pro 怎么帮你 |
+<p align="center">
+  <img src=".github/assets/demo.gif" alt="在块编辑器中插入引用，右侧的主题预览自动更新" width="100%">
+</p>
+
+| 功能 | 说明 |
 | --- | --- |
-| **写文章** | 类似 Notion 的块编辑器，输入 `/` 就能插入标题、表格和图片，也可以随时切到 Markdown 源码。内容会自动保存。 |
-| **看效果** | 边写边预览文章在当前主题里的样子，不用先生成网站。 |
-| **换主题** | 内置安知鱼、Butterfly、NexT、Fluid、Stellar 和 Volantis，在界面里安装、切换和修改配置。 |
-| **管图片** | 粘贴就能上传，可以存在本地，也可以存到阿里云 OSS、七牛云或腾讯云 COS。 |
-| **发布网站** | 一键部署到 GitHub Pages、Cloudflare Pages 或 EdgeOne Pages。 |
-| **在手机上写** | Android / iOS App 没网也能写，通过 GitHub 和电脑同步。两边改了同一篇文章时，由你决定保留哪个版本。 |
-| **让 AI 帮忙** | 连上你自己的 AI 接口，写作时可以用 AI 助手；也支持 MCP，让 Agent 帮你查文章、写草稿、发布和部署。 |
+| **文章编辑** | 提供类似 Notion 的块编辑器，输入 `/` 可插入标题、表格和图片，也可以切换到 Markdown 源码。内容自动保存。 |
+| **主题预览** | 编辑文章时可以同时预览当前主题的效果，不用先生成网站。 |
+| **主题管理** | 内置安知鱼、Butterfly、NexT、Fluid、Stellar 和 Volantis，支持在界面中安装、切换和配置。 |
+| **图片管理** | 支持粘贴上传，图片可以存放在本地、阿里云 OSS、七牛云或腾讯云 COS。 |
+| **站点部署** | 支持一键部署到 GitHub Pages、Cloudflare Pages 和 EdgeOne Pages。 |
+| **手机写作** | 提供 Android 和 iOS App，支持离线写作，通过 GitHub 与电脑同步。同一篇文章两边都有修改时，可以选择保留的版本。 |
+| **AI 与 MCP** | 接入自己的 AI 服务后可以使用写作助手；支持 MCP，Agent 可以搜索文章、撰写草稿、发布和部署。 |
 
-另外还有全局搜索、回收站、YAML 配置编辑、深色模式和中英文界面。桌面 App 还能切换多个博客并自动更新。
+此外还支持全局搜索、回收站、YAML 配置编辑、深色模式和中英文界面。桌面端支持切换多个博客和自动更新。
 
-> **2.1 目前是测试版。** 块编辑器、主题预览、手机 App、GitHub 同步、MCP 和桌面自动更新都是 2.1 才有的功能。想要更稳妥，可以用正式版 2.0.0。升级前请先备份博客源文件。
+> **2.1 目前是测试版。** 块编辑器、主题预览、手机 App、GitHub 同步、MCP 和桌面端自动更新是 2.1 新增的功能，正式版 2.0.0 不包含。升级前请备份博客源文件。
 
 ## 快速开始
 
-| 你的情况 | 选这个 |
+| 情况 | 推荐方式 |
 | --- | --- |
-| 不想装 Node.js，下载就能用；还没有博客也可以 | [桌面 App](#桌面-app) |
-| 已经有 Hexo 博客，习惯用命令行 | [Hexo 插件](#hexo-插件) |
-| 想在手机上写文章 | [手机 App](#手机-app) |
+| 不想安装 Node.js，或还没有博客 | [桌面 App](#桌面-app) |
+| 已有 Hexo 博客，熟悉命令行 | [Hexo 插件](#hexo-插件) |
+| 需要在手机上写文章 | [手机 App](#手机-app) |
 
 ### 桌面 App
 
-安装包自带 Node.js、npm 和 Git，不需要提前安装。支持 Windows 10+、macOS 12+ 和 Ubuntu 22.04+。
+安装包自带 Node.js、npm 和 Git，无需提前安装。支持 Windows 10+、macOS 12+ 和 Ubuntu 22.04+。
 
 1. 下载对应系统的 2.1.0 Beta 3 安装包：
 
@@ -61,14 +65,14 @@ Hexo 很好用，但写文章、改配置、部署要在文件和命令行之间
    | Windows（x64） | [EXE](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/Hexo-Pro-Desktop-2.1.0-beta.3-win-x64.exe) |
    | Linux（x64） | [AppImage](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/Hexo-Pro-Desktop-2.1.0-beta.3-linux-x86_64.AppImage) |
 
-2. 打开 App，选择已有的博客文件夹，或者新建一个博客。
-3. 开始写作，写完后在「部署」页面发布。
+2. 打开 App，选择已有的博客目录，或新建一个博客。
+3. 编辑文章，完成后在「部署」页面发布。
 
-系统提示无法打开？看[常见问题](#常见问题)。想用正式版，可以到 [2.0.0 下载页](https://github.com/heywarms/hexo-pro/releases/tag/v2.0.0)。
+如果系统提示无法打开，请查看[常见问题](#常见问题)。正式版请前往 [2.0.0 下载页](https://github.com/heywarms/hexo-pro/releases/tag/v2.0.0)。
 
 ### Hexo 插件
 
-需要 Node.js 20.19 或更新版本，以及 Hexo 8。在博客目录里安装：
+需要 Node.js 20.19 或更新版本，以及 Hexo 8。在博客目录中安装：
 
 ```bash
 npm install --save https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/hexo-pro-2.1.0-beta.3.tgz
@@ -80,31 +84,26 @@ npm install --save https://github.com/heywarms/hexo-pro/releases/download/v2.1.0
 npx hexo server
 ```
 
-然后用浏览器打开 <http://localhost:4000/pro/>。第一次进入时可以设置账号密码，也可以之后再设置。
+然后在浏览器中打开 <http://localhost:4000/pro/>。首次进入时可以设置账号密码，也可以稍后设置。
 
-想用正式版 2.0.0，安装命令换成：
+安装正式版 2.0.0：
 
 ```bash
 npm install --save hexo-pro
 ```
 
-> **注意：** 2.1 的后续测试版只发布在 GitHub。npm 的 `beta` 标签还停留在 2.1.0-beta.0，`npm install hexo-pro@beta` 装到的是旧版本，请用上面的地址安装。
+> **注意：** 2.1 的后续测试版只发布在 GitHub。npm 的 `beta` 标签还停留在 2.1.0-beta.0，`npm install hexo-pro@beta` 安装的是旧版本，请使用上面的地址安装。
 
 ### 手机 App
 
-手机写作不需要电脑开着，也不需要服务器。文章保存在手机上，通过你自己的 GitHub 仓库同步。
+手机 App 不依赖电脑和服务器。文章保存在手机上，通过自己的 GitHub 仓库同步。
 
-- **Android 7+**：下载[测试版 APK](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/HexoPro-2.1.0-beta.3-android-debug.apk)。这是测试签名的安装包，还没有上架应用商店。
-- **iPhone（iOS 16.4+）**：还没有上架 App Store 或 TestFlight。发布页的安装包只能装到已登记的测试设备上，其他设备需要用 Xcode 自行构建。
+- **Android 7+**：下载[测试版 APK](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/HexoPro-2.1.0-beta.3-android-debug.apk)。这是测试签名的安装包，尚未上架应用商店。
+- **iPhone（iOS 16.4+）**：尚未上架 App Store 和 TestFlight。发布页的安装包只能安装到已登记的测试设备，其他设备需要使用 Xcode 自行构建。
 
-连接 GitHub 和构建步骤见[手机 App 指南](https://github.com/heywarms/hexo-pro-client/blob/master/docs/MOBILE_APP.md)。
+GitHub 连接和构建步骤见[手机 App 指南](https://github.com/heywarms/hexo-pro-client/blob/master/docs/MOBILE_APP.md)。
 
 ## 界面预览
-
-<p align="center">
-  <img src="docs/screenshots/editor.jpg" alt="块编辑器和主题预览并排显示" width="100%"><br>
-  <sub>一边写，一边看文章在当前主题里的样子</sub>
-</p>
 
 <table>
   <tr>
@@ -112,8 +111,8 @@ npm install --save hexo-pro
     <td width="50%"><img src="docs/screenshots/themes.jpg" alt="主题市场"></td>
   </tr>
   <tr>
-    <td align="center"><sub>工作台：最近编辑、草稿和部署情况</sub></td>
-    <td align="center"><sub>主题市场：安装、切换和配置主题</sub></td>
+    <td align="center"><sub>工作台：最近编辑、草稿和部署概况</sub></td>
+    <td align="center"><sub>主题市场：主题安装、切换和配置</sub></td>
   </tr>
   <tr>
     <td width="50%"><img src="docs/screenshots/deploy.jpg" alt="部署页面"></td>
@@ -121,39 +120,39 @@ npm install --save hexo-pro
   </tr>
   <tr>
     <td align="center"><sub>部署：GitHub Pages、Cloudflare Pages 和 EdgeOne Pages</sub></td>
-    <td align="center"><sub>手机 App：离线写作，通过 GitHub 同步</sub></td>
+    <td align="center"><sub>手机 App：离线写作和 GitHub 同步</sub></td>
   </tr>
 </table>
 
 ## 常见问题
 
-**我的文章会被改成别的格式吗？**
+**文章会被转换成其他格式吗？**
 
-不会。文章还是 Hexo 的 Markdown 文件和 Front Matter，放在原来的位置。后台账号、设置等数据放在博客目录的 `data/` 和 `.hexo-pro/` 里。
+不会。文章仍是 Hexo 的 Markdown 文件和 Front Matter，存放位置不变。后台账号、设置等数据保存在博客目录的 `data/` 和 `.hexo-pro/` 中。
 
 **后台会被发布到网站上吗？**
 
-不会。后台只在 `hexo server` 或桌面 App 运行时出现，`hexo generate` 生成的静态网站里没有它。如果你在公网服务器上运行 `hexo server`，请务必设置账号密码。
+不会。后台只在 `hexo server` 或桌面 App 运行时可用，`hexo generate` 生成的静态网站不包含后台。如果在公网服务器上运行 `hexo server`，请务必设置账号密码。
 
 **系统提示无法打开 App 怎么办？**
 
-测试版的 Mac 安装包已签名但还没有经过 Apple 公证，Windows 安装包没有代码签名，所以系统可能会拦截。
+测试版的 Mac 安装包已签名，但尚未经过 Apple 公证；Windows 安装包没有代码签名，系统可能会拦截。
 
-- **Mac**：到「系统设置 → 隐私与安全性」，点「仍要打开」。
-- **Windows**：在 SmartScreen 提示里点「更多信息」，再点「仍要运行」。
-- **Linux**：先运行 `chmod +x` 给 AppImage 加上执行权限，再打开。
+- **Mac**：在「系统设置 → 隐私与安全性」中点击「仍要打开」。
+- **Windows**：在 SmartScreen 提示中点击「更多信息」，再点击「仍要运行」。
+- **Linux**：先运行 `chmod +x` 为 AppImage 添加执行权限，再打开。
 
-**桌面 App 怎么更新？**
+**桌面 App 如何更新？**
 
-从 2.1.0 Beta 2 开始支持自动更新。App 在后台下载新版本，你确认后重启安装；也可以在「设置 → 帮助与更新」里关闭自动下载。更早的版本需要手动安装新版。
+从 2.1.0 Beta 2 开始支持自动更新。App 在后台下载新版本，确认后重启安装，也可以在「设置 → 帮助与更新」中关闭自动下载。更早的版本需要手动安装。
 
-**插件怎么换回正式版？**
+**插件如何换回正式版？**
 
-在博客目录运行 `npm install --save hexo-pro@2.0.0`。换版本前同样建议先备份。
+在博客目录运行 `npm install --save hexo-pro@2.0.0`。更换版本前建议先备份。
 
-**遇到问题找谁？**
+**遇到问题如何反馈？**
 
-到 [GitHub Issues](https://github.com/heywarms/hexo-pro/issues) 提问题，或者加 QQ 群 1009585669。
+通过 [GitHub Issues](https://github.com/heywarms/hexo-pro/issues) 反馈，或加入 QQ 群 1009585669。
 
 ## 更多文档
 
@@ -218,7 +217,7 @@ npm install --save hexo-pro
 
 </details>
 
-## 参与和支持
+## 参与贡献
 
 欢迎提交 [Issue](https://github.com/heywarms/hexo-pro/issues) 和 Pull Request，也欢迎加入 QQ 群交流。
 
@@ -227,14 +226,16 @@ npm install --save hexo-pro
   <sub>QQ 群：1009585669</sub>
 </p>
 
-如果这个项目帮到了你，可以点个 Star，或者请作者喝杯咖啡。
+## 打赏支持
+
+如果你觉得本项目不错，可以请我喝杯咖啡 ☕️，支持项目持续优化！
 
 <p align="center">
   <img src="docs/donate_alipay.jpg" width="150" alt="支付宝打赏二维码">
   <img src="docs/donate_wc.jpg" width="150" alt="微信打赏二维码">
 </p>
 
-感谢以下捐助者，排名不分先后。想出现在这里，打赏后联系我们添加头像。
+感谢以下用户对项目的支持，排名不分先后，您的捐助是我们持续开发的动力！
 
 <table align="center">
   <tr>
@@ -253,7 +254,9 @@ npm install --save hexo-pro
   </tr>
 </table>
 
-## 给开发者
+想成为捐助者？扫描上方二维码支持项目，并联系我们添加您的头像。
+
+## 项目结构
 
 Hexo Pro 由三个仓库组成：
 
@@ -265,4 +268,4 @@ Hexo Pro 由三个仓库组成：
 
 ## 许可证
 
-[MIT](./LICENSE) © wuzheng
+[MIT](./LICENSE) © [heywarms](https://github.com/heywarms)

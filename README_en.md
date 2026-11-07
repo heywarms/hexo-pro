@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <strong>A visual admin panel for your Hexo blog.</strong><br>
-  Write posts, change themes, upload images and publish your site without memorizing commands.
+  <strong>Hexo Pro, a visual admin panel for Hexo blogs</strong><br>
+  Post editing, theme preview and switching, image management, and one-click deployment.
 </p>
 
 <p align="center">
@@ -22,35 +22,39 @@
   <a href="./README.md">中文</a>
 </p>
 
-## What it does
+## Features
 
-Hexo is great, but writing, configuring and deploying mean switching between files and the command line. Hexo Pro puts all of that in one interface, and your posts stay as Markdown files in your blog.
+Hexo Pro is a visual management tool for Hexo. Post editing, theme configuration and site deployment all happen in its interface. Posts stay in the blog folder as Markdown files.
 
-| You want to | How Hexo Pro helps |
+<p align="center">
+  <img src=".github/assets/demo.gif" alt="Inserting a quote in the block editor while the theme preview updates automatically" width="100%">
+</p>
+
+| Feature | Description |
 | --- | --- |
-| **Write** | A Notion-style block editor: type `/` to insert headings, tables and images, or switch to Markdown source at any time. Your work saves automatically. |
-| **Check the result** | Preview the post in your current theme while you write, without generating the site first. |
-| **Change themes** | AnZhiYu, Butterfly, NexT, Fluid, Stellar and Volantis are built in. Install, switch and configure them from the interface. |
-| **Manage images** | Paste to upload. Store images locally or on Aliyun OSS, Qiniu Cloud or Tencent COS. |
-| **Publish** | Deploy to GitHub Pages, Cloudflare Pages or EdgeOne Pages in one click. |
-| **Write on your phone** | The Android and iOS apps work offline and sync with your computer through GitHub. If both sides change the same post, you choose which version to keep. |
-| **Get help from AI** | Connect your own AI service to use the writing assistant. MCP support lets agents search posts, write drafts, publish and deploy. |
+| **Post editing** | A Notion-style block editor. Type `/` to insert headings, tables and images, or switch to Markdown source. Changes save automatically. |
+| **Theme preview** | Preview the current theme while editing a post, without generating the site first. |
+| **Theme management** | AnZhiYu, Butterfly, NexT, Fluid, Stellar and Volantis are built in, with install, switch and configuration from the interface. |
+| **Image management** | Paste to upload. Images can be stored locally or on Aliyun OSS, Qiniu Cloud or Tencent COS. |
+| **Site deployment** | One-click deployment to GitHub Pages, Cloudflare Pages and EdgeOne Pages. |
+| **Mobile writing** | Android and iOS apps with offline writing and GitHub sync. If a post changes on both sides, you choose which version to keep. |
+| **AI and MCP** | Connect your own AI service to use the writing assistant. With MCP, agents can search posts, write drafts, publish and deploy. |
 
-You also get global search, a recycle bin, a YAML config editor, dark mode, and an English or Chinese interface. The desktop app can switch between blogs and update itself.
+Also includes global search, a recycle bin, a YAML config editor, dark mode, and English and Chinese interfaces. The desktop app can switch between blogs and update automatically.
 
-> **2.1 is in beta.** The block editor, theme preview, mobile apps, GitHub sync, MCP and desktop auto-update are all new in 2.1. For something more conservative, use the stable 2.0.0 release. Back up your blog source before upgrading.
+> **2.1 is in beta.** The block editor, theme preview, mobile apps, GitHub sync, MCP and desktop auto-update are new in 2.1 and aren't in stable 2.0.0. Back up your blog source before upgrading.
 
 ## Quick start
 
-| Your situation | Choose |
+| Situation | Recommended |
 | --- | --- |
-| You don't want to install Node.js, or don't have a blog yet | [Desktop app](#desktop-app) |
-| You already have a Hexo blog and are comfortable with the command line | [Hexo plugin](#hexo-plugin) |
-| You want to write on your phone | [Mobile app](#mobile-app) |
+| Node.js not installed, or no blog yet | [Desktop app](#desktop-app) |
+| Existing Hexo blog, familiar with the command line | [Hexo plugin](#hexo-plugin) |
+| Writing on a phone | [Mobile app](#mobile-app) |
 
 ### Desktop app
 
-Node.js, npm and Git are bundled, so there's nothing else to install. Supports Windows 10+, macOS 12+ and Ubuntu 22.04+.
+Node.js, npm and Git are bundled with the installer. Supports Windows 10+, macOS 12+ and Ubuntu 22.04+.
 
 1. Download 2.1.0 Beta 3 for your system:
 
@@ -61,10 +65,10 @@ Node.js, npm and Git are bundled, so there's nothing else to install. Supports W
    | Windows (x64) | [EXE](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/Hexo-Pro-Desktop-2.1.0-beta.3-win-x64.exe) |
    | Linux (x64) | [AppImage](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/Hexo-Pro-Desktop-2.1.0-beta.3-linux-x86_64.AppImage) |
 
-2. Open the app, then choose your blog folder or create a new blog.
-3. Start writing. When you're done, publish from the Deploy page.
+2. Open the app, then choose an existing blog folder or create a new blog.
+3. Edit your posts, then publish from the Deploy page.
 
-If your system won't open the app, see the [FAQ](#faq). The stable version is on the [2.0.0 release page](https://github.com/heywarms/hexo-pro/releases/tag/v2.0.0).
+If the system won't open the app, see the [FAQ](#faq). The stable version is on the [2.0.0 release page](https://github.com/heywarms/hexo-pro/releases/tag/v2.0.0).
 
 ### Hexo plugin
 
@@ -74,15 +78,15 @@ Requires Node.js 20.19 or newer and Hexo 8. Install it in your blog folder:
 npm install --save https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/hexo-pro-2.1.0-beta.3.tgz
 ```
 
-Start your blog:
+Start the blog:
 
 ```bash
 npx hexo server
 ```
 
-Then open <http://localhost:4000/pro/> in your browser. The first time, you can set a username and password or skip it for later.
+Then open <http://localhost:4000/pro/> in a browser. On first use, you can set a username and password or do it later.
 
-To use stable 2.0.0 instead, install with:
+To install stable 2.0.0:
 
 ```bash
 npm install --save hexo-pro
@@ -92,21 +96,16 @@ npm install --save hexo-pro
 
 ### Mobile app
 
-You don't need a server or a computer that's switched on. Posts are saved on the phone and sync through your own GitHub repository.
+The mobile app doesn't depend on a computer or server. Posts are saved on the phone and sync through your own GitHub repository.
 
 - **Android 7+**: download the [test APK](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/HexoPro-2.1.0-beta.3-android-debug.apk). It's signed for testing and isn't in an app store.
-- **iPhone (iOS 16.4+)**: not on the App Store or TestFlight yet. The package on the release page only installs on registered test devices, so other devices need their own build from Xcode.
+- **iPhone (iOS 16.4+)**: not on the App Store or TestFlight yet. The package on the release page only installs on registered test devices. Other devices need their own build from Xcode.
 
-For connecting GitHub and building the apps, see the [mobile app guide](https://github.com/heywarms/hexo-pro-client/blob/master/docs/MOBILE_APP.md) (in Chinese).
+For GitHub setup and build steps, see the [mobile app guide](https://github.com/heywarms/hexo-pro-client/blob/master/docs/MOBILE_APP.md) (in Chinese).
 
 ## Screenshots
 
-These show the Chinese interface. You can switch to English from the top bar.
-
-<p align="center">
-  <img src="docs/screenshots/editor.jpg" alt="Block editor beside a theme preview" width="100%"><br>
-  <sub>See the post in your current theme while you write</sub>
-</p>
+The demo and screenshots show the Chinese interface. You can switch to English from the top bar.
 
 <table>
   <tr>
@@ -114,7 +113,7 @@ These show the Chinese interface. You can switch to English from the top bar.
     <td width="50%"><img src="docs/screenshots/themes.jpg" alt="Theme market"></td>
   </tr>
   <tr>
-    <td align="center"><sub>Dashboard: recent edits, drafts and deployments</sub></td>
+    <td align="center"><sub>Dashboard: recent edits, drafts and deployment status</sub></td>
     <td align="center"><sub>Theme market: install, switch and configure themes</sub></td>
   </tr>
   <tr>
@@ -123,23 +122,23 @@ These show the Chinese interface. You can switch to English from the top bar.
   </tr>
   <tr>
     <td align="center"><sub>Deploy: GitHub Pages, Cloudflare Pages and EdgeOne Pages</sub></td>
-    <td align="center"><sub>Mobile app: write offline and sync through GitHub</sub></td>
+    <td align="center"><sub>Mobile app: offline writing and GitHub sync</sub></td>
   </tr>
 </table>
 
 ## FAQ
 
-**Will my posts be converted to another format?**
+**Will posts be converted to another format?**
 
-No. Posts stay as Hexo Markdown files with Front Matter, in the same place. Admin accounts, settings and similar data are kept in the `data/` and `.hexo-pro/` folders of your blog.
+No. Posts stay as Hexo Markdown files with Front Matter, in the same location. Admin accounts, settings and similar data are stored in the `data/` and `.hexo-pro/` folders of the blog.
 
-**Will the admin panel be published with my site?**
+**Will the admin panel be published with the site?**
 
-No. It only exists while `hexo server` or the desktop app is running, and it isn't part of the static site from `hexo generate`. If you run `hexo server` on a public server, make sure you set a username and password.
+No. It's only available while `hexo server` or the desktop app is running, and the static site from `hexo generate` doesn't include it. If you run `hexo server` on a public server, make sure to set a username and password.
 
-**What if my system won't open the app?**
+**What if the system won't open the app?**
 
-The beta Mac packages are signed but not yet notarized by Apple, and the Windows installer has no code signature, so your system may block them.
+The beta Mac packages are signed but not yet notarized by Apple, and the Windows installer has no code signature, so the system may block them.
 
 - **Mac**: go to System Settings → Privacy & Security and click Open Anyway.
 - **Windows**: in the SmartScreen prompt, click More info, then Run anyway.
@@ -147,13 +146,13 @@ The beta Mac packages are signed but not yet notarized by Apple, and the Windows
 
 **How does the desktop app update?**
 
-Auto-update is available from 2.1.0 Beta 2. The app downloads new versions in the background and installs them after you confirm a restart. You can turn off automatic downloads under Settings → Help & Updates. Older versions need a manual install.
+Auto-update is available from 2.1.0 Beta 2. The app downloads new versions in the background and installs them after you confirm a restart. Automatic downloads can be turned off under Settings → Help & Updates. Older versions need a manual install.
 
 **How do I switch the plugin back to stable?**
 
-Run `npm install --save hexo-pro@2.0.0` in your blog folder. As with any version change, back up first.
+Run `npm install --save hexo-pro@2.0.0` in the blog folder. Back up before changing versions.
 
-**Where can I get help?**
+**How do I report a problem?**
 
 Open a [GitHub issue](https://github.com/heywarms/hexo-pro/issues) or join QQ group 1009585669.
 
@@ -220,7 +219,7 @@ Full notes and downloads for every version are on the [Releases](https://github.
 
 </details>
 
-## Contribute and support
+## Contribute
 
 Issues and pull requests are welcome on [GitHub](https://github.com/heywarms/hexo-pro/issues). There's also a Chinese-language QQ group.
 
@@ -229,14 +228,16 @@ Issues and pull requests are welcome on [GitHub](https://github.com/heywarms/hex
   <sub>QQ group: 1009585669</sub>
 </p>
 
-If this project helps you, give it a star or buy the author a coffee.
+## Donate
+
+If you find this project helpful, a small gesture like buying a cup of coffee ☕️ helps us keep improving it.
 
 <p align="center">
   <img src="docs/donate_alipay.jpg" width="150" alt="Alipay donation QR code">
   <img src="docs/donate_wc.jpg" width="150" alt="WeChat donation QR code">
 </p>
 
-Thanks to these supporters, in no particular order. To be listed here, donate and contact us to add your avatar.
+Thanks to the following supporters, in no particular order. Your donations keep development going!
 
 <table align="center">
   <tr>
@@ -255,11 +256,13 @@ Thanks to these supporters, in no particular order. To be listed here, donate an
   </tr>
 </table>
 
-## For developers
+Want to be a donor? Scan the QR code above to support the project, and contact us to add your avatar.
+
+## Project structure
 
 Hexo Pro is made up of three repositories:
 
-| Repository | What's in it | Built with |
+| Repository | Contents | Built with |
 | --- | --- | --- |
 | [hexo-pro](https://github.com/heywarms/hexo-pro) (this one) | Hexo plugin, admin API, agent and MCP commands | Node.js, Express, NeDB |
 | [hexo-pro-client](https://github.com/heywarms/hexo-pro-client) | Web interface and mobile apps; also the main development repository | React, TypeScript, Capacitor |
@@ -267,4 +270,4 @@ Hexo Pro is made up of three repositories:
 
 ## License
 
-[MIT](./LICENSE) © wuzheng
+[MIT](./LICENSE) © [heywarms](https://github.com/heywarms)
