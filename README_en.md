@@ -1,275 +1,273 @@
-<div align='center'>
-    <img src="docs/head.png" alt="alt text" width="100%">
-    <h1>Hexo Pro</h1>
-</div>
-<div align="center">
-  <a href="https://github.com/wuzheng228/hexo-pro/stargazers">
-    <img src="https://img.shields.io/github/stars/wuzheng228/hexo-pro?style=flat&logo=github" alt="GitHub stars"/>
-  </a>
+<p align="center">
+  <img src="docs/banner.jpg" alt="Hexo Pro: write, theme, sync, deploy" width="100%">
+</p>
 
-  <a href="https://github.com/wuzheng228/hexo-pro/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/wuzheng228/hexo-pro" alt="GitHub license">
-  </a>
+<p align="center">
+  <strong>Hexo Pro, a visual admin panel for Hexo blogs</strong><br>
+  Post editing, theme preview and switching, image management, and one-click deployment.
+</p>
 
-  <a href="https://github.com/wuzheng228/hexo-pro/releases">
-    <img src="https://img.shields.io/badge/version-1.3.0-blue" alt="Version">
-  </a>
-  
-  <a href="https://www.npmjs.com/package/hexo-pro">
-    <img src="https://img.shields.io/npm/dm/hexo-pro" alt="npm downloads">
-  </a>
-</div>
+<p align="center">
+  <a href="https://github.com/heywarms/hexo-pro/releases/latest"><img src="https://img.shields.io/github/v/release/heywarms/hexo-pro?label=stable" alt="Stable release"></a>
+  <a href="https://github.com/heywarms/hexo-pro/releases"><img src="https://img.shields.io/github/v/release/heywarms/hexo-pro?include_prereleases&label=beta&color=orange" alt="Beta release"></a>
+  <a href="https://github.com/heywarms/hexo-pro"><img src="https://img.shields.io/github/stars/heywarms/hexo-pro?style=flat&logo=github" alt="GitHub stars"></a>
+  <a href="https://www.npmjs.com/package/hexo-pro"><img src="https://img.shields.io/npm/dm/hexo-pro" alt="npm downloads"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/github/license/heywarms/hexo-pro" alt="MIT license"></a>
+</p>
 
-<div align="center">
+<p align="center">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#screenshots">Screenshots</a> ·
+  <a href="#faq">FAQ</a> ·
+  <a href="./README.md">中文</a>
+</p>
 
-[中文](./README.md) | [English](./README_en.md)
+## Features
 
-</div>
+Hexo Pro is a visual management tool for Hexo. Post editing, theme configuration and site deployment all happen in its interface. Posts stay in the blog folder as Markdown files.
 
-<div align="center">
-  <h3>🚀 Modern Hexo Blog Management System</h3>
-  <p><em>Empowering Efficient Content Creation and Management</em></p>
-</div>
+<p align="center">
+  <img src=".github/assets/demo.gif" alt="Inserting a quote in the block editor while the theme preview updates automatically" width="100%">
+</p>
 
----
+| Feature | Description |
+| --- | --- |
+| **Post editing** | A Notion-style block editor. Type `/` to insert headings, tables and images, or switch to Markdown source. Changes save automatically. |
+| **Theme preview** | Preview the current theme while editing a post, without generating the site first. |
+| **Theme management** | AnZhiYu, Butterfly, NexT, Fluid, Stellar and Volantis are built in, with install, switch and configuration from the interface. |
+| **Image management** | Paste to upload. Images can be stored locally or on Aliyun OSS, Qiniu Cloud or Tencent COS. |
+| **Site deployment** | One-click deployment to GitHub Pages, Cloudflare Pages and EdgeOne Pages. |
+| **Mobile writing** | Android and iOS apps with offline writing and GitHub sync. If a post changes on both sides, you choose which version to keep. |
+| **AI and MCP** | Connect your own AI service to use the writing assistant. With MCP, agents can search posts, write drafts, publish and deploy. |
 
-## 🏆 Introduction
+Also includes global search, a recycle bin, a YAML config editor, dark mode, and English and Chinese interfaces. The desktop app can switch between blogs and update automatically.
 
-Hexo Pro is a backend management system plug-in designed for the **Hexo** static blog framework, aiming to provide bloggers and developers with a more powerful and convenient content management experience.
+> **2.1 is in beta.** The block editor, theme preview, mobile apps, GitHub sync, MCP and desktop auto-update are new in 2.1 and aren't in stable 2.0.0. Back up your blog source before upgrading.
 
-Project Vision/Positioning:
+## Quick start
 
-Hexo Pro provides Hexo users with a professional-level content management experience, saving you 90% of your content maintenance time!
+| Situation | Recommended |
+| --- | --- |
+| Node.js not installed, or no blog yet | [Desktop app](#desktop-app) |
+| Existing Hexo blog, familiar with the command line | [Hexo plugin](#hexo-plugin) |
+| Writing on a phone | [Mobile app](#mobile-app) |
 
+### Desktop app
 
-Related projects:
-- [Hexo Pro Client](https://github.com/wuzheng228/hexo-pro-client) - Front-end implementation of Hexo Pro, a modern management interface developed based on React
-- [Hexo Pro Desktop](https://github.com/wuzheng228/hexo-pro-desktop) - Desktop client based on Electron, supporting multi-project management and local enhanced experience
+Node.js, npm and Git are bundled with the installer. Supports Windows 10+, macOS 12+ and Ubuntu 22.04+.
 
----
+1. Download 2.1.0 Beta 3 for your system:
 
-## ✨ Advantages
+   | System | Download |
+   | --- | --- |
+   | Mac (Apple silicon) | [DMG](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/Hexo-Pro-Desktop-2.1.0-beta.3-mac-arm64.dmg) |
+   | Mac (Intel) | [DMG](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/Hexo-Pro-Desktop-2.1.0-beta.3-mac-x64.dmg) |
+   | Windows (x64) | [EXE](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/Hexo-Pro-Desktop-2.1.0-beta.3-win-x64.exe) |
+   | Linux (x64) | [AppImage](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/Hexo-Pro-Desktop-2.1.0-beta.3-linux-x86_64.AppImage) |
 
-* 🚀 Extremely easy to use: user-friendly interface, intuitive operation, zero learning cost
-* 🌗 Multiple theme support: one-click switch between dark/light mode, adapted to different usage scenarios
-* 📱 Mobile adaptation: responsive design, full support for mobile phones, tablets, and PCs
-* 🔒 Safe and reliable: support for multi-user permission management, data security is guaranteed
-* ⚡ Efficient integration: seamless integration with the Hexo ecosystem, support for mainstream plug-ins and themes
-* 🖥️ Desktop enhancement: support for desktop-exclusive features such as multi-project switching, smart authentication, native menus, and offline management
+2. Open the app, then choose an existing blog folder or create a new blog.
+3. Edit your posts, then publish from the Deploy page.
 
----
+If the system won't open the app, see the [FAQ](#faq). The stable version is on the [2.0.0 release page](https://github.com/heywarms/hexo-pro/releases/tag/v2.0.0).
 
-## 🎯 Features
+### Hexo plugin
 
-* Article management: create, edit, delete articles, support Front-matter visual editing
-* Page management: easily manage static pages
-* Image hosting integration: support image pasting, uploading and batch management
-* Configuration management: visually edit Hexo configuration files
-* Global search: extremely fast full-text search based on Fuse.js
-* One-click deployment: multiple deployment methods, easy to go online
-* ​​International support: multi-language interface, global user-friendly
-* Desktop exclusive: multi-project management, automatic authentication, native menu, offline support, smart port management, etc.
-* More features:...
-
----
-
-## 📦 Structure
-
-This project contains the following submodules:
-
-```
-parent-directory/
-├── hexo-pro/ # This plugin (backend core)
-├── hexo-pro-client/ # Front-end management interface (React)
-└── hexo-pro-desktop/ # Desktop client (Electron)
-```
-
-* **hexo-pro**: Hexo plugin, providing API and server logic
-* **hexo-pro-client**: Modern Web management interface
-* **hexo-pro-desktop**: Desktop client, integrated with hexo-pro-core, supports multiple projects and local enhanced experience
-
----
-
-## 🚀 Quick Start
-
-### 1. Use as a Hexo plugin
-
-#### Prerequisites
-
-* Node.js 20.19.0 or newer
-* Hexo 8.x
-
-Before upgrading to Hexo 8, run `node -v` and update Node.js to meet this requirement. Hexo Pro uses Hexo 8's normal dependencies; downgrading `strip-ansi` is unnecessary.
-
-#### Installation steps
+Requires Node.js 20.19 or newer and Hexo 8. Install it in your blog folder:
 
 ```bash
-# 1. Install the Hexo Pro plugin
-npm install --save hexo-pro
-
-# 2. Start the Hexo server
-hexo server
-
-# 3. Access the backend management page
-open http://localhost:4000/pro/
+npm install --save https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/hexo-pro-2.1.0-beta.3.tgz
 ```
 
-### 2. Use the desktop client
+Start the blog:
 
-#### System requirements
+```bash
+npx hexo server
+```
 
-* Windows 10+ / macOS 12+ / Linux (see the Desktop README for supported distributions)
-* Pre-built desktop clients include Node.js; a separate Node.js installation is unnecessary to run them
-* Installing dependencies or developing the desktop client from source requires Node.js 22.12.0 or newer
+Then open <http://localhost:4000/pro/> in a browser. On first use, you can set a username and password or do it later.
 
-The desktop client runs Hexo with the Node.js runtime bundled by Electron. To use Hexo 8, update to a desktop client whose bundled Node.js meets this requirement. Updating the system's Node.js does not change the runtime used by an older desktop client.
+To install stable 2.0.0:
 
-#### Installation and startup
+```bash
+npm install --save hexo-pro
+```
 
-Download **[Releases](https://github.com/wuzheng228/hexo-pro/releases)** pre-built version directly.
+> **Note:** Later 2.1 betas are published only on GitHub. The npm `beta` tag still points to 2.1.0-beta.0, so `npm install hexo-pro@beta` installs an older version. Use the address above instead.
 
-#### Instructions
+### Mobile app
 
-* Select the Hexo blog project directory for the first startup and automatically start the Hexo Pro service
-* Supports multi-project switching, automatic authentication, native menus, shortcut keys and other desktop enhancements
-* See **Desktop README** for detailed functions
----
+The mobile app doesn't depend on a computer or server. Posts are saved on the phone and sync through your own GitHub repository.
 
-## 📸 Previews
+- **Android 7+**: download the [test APK](https://github.com/heywarms/hexo-pro/releases/download/v2.1.0-beta.3/HexoPro-2.1.0-beta.3-android-debug.apk). It's signed for testing and isn't in an app store.
+- **iPhone (iOS 16.4+)**: not on the App Store or TestFlight yet. The package on the release page only installs on registered test devices. Other devices need their own build from Xcode.
 
-<div align="center">
+For GitHub setup and build steps, see the [mobile app guide](https://github.com/heywarms/hexo-pro-client/blob/master/docs/MOBILE_APP.md) (in Chinese).
 
-  **Login page** | **Article list** | **Editor**
-  :---: | :---: | :---:
-  <img src="docs/login-page.png" width="250"> | <img src="docs/posts-page.png" width="250"> | <img src="docs/editor-page.png" width="250">
+## Screenshots
 
-  **Home** | **Image Hosting** | **Configuration Management**
-  :---: | :---: | :---:
-  <img src="docs/home-page.png" width="250"> | <img src="docs/image-manager-page.png" width="250"> | <img src="docs/config-manager-page.png" width="250">
+The demo and screenshots show the Chinese interface. You can switch to English from the top bar.
 
-  **Global Search** | **Deploy**
-  :---: | :---:
-  <img src="docs/global-search-page.png" width="250"> | <img src="docs/deploy-page.png" width="250">
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/dashboard.jpg" alt="Dashboard"></td>
+    <td width="50%"><img src="docs/screenshots/themes.jpg" alt="Theme market"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Dashboard: recent edits, drafts and deployment status</sub></td>
+    <td align="center"><sub>Theme market: install, switch and configure themes</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/deploy.jpg" alt="Deploy page"></td>
+    <td width="50%" align="center"><img src="docs/screenshots/mobile.jpg" alt="Mobile app" width="34%"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Deploy: GitHub Pages, Cloudflare Pages and EdgeOne Pages</sub></td>
+    <td align="center"><sub>Mobile app: offline writing and GitHub sync</sub></td>
+  </tr>
+</table>
 
-</div>
+## FAQ
 
----
+**Will posts be converted to another format?**
 
-## 📅 ​​Updates
+No. Posts stay as Hexo Markdown files with Front Matter, in the same location. Admin accounts, settings and similar data are stored in the `data/` and `.hexo-pro/` folders of the blog.
 
-* 2025-06-15 v1.2.6
+**Will the admin panel be published with the site?**
 
-✅ **🔧 FrontMatter Boolean fix** - Fixed the display and setting issues of Boolean values ​​in frontMatter to ensure correct handling of true/false values
+No. It's only available while `hexo server` or the desktop app is running, and the static site from `hexo generate` doesn't include it. If you run `hexo server` on a public server, make sure to set a username and password.
 
-✅ **🔌 Smart plugin loading** - Optimize plugin loading logic on the desktop, automatically load all available Hexo plugins in node_modules under existing projects
+**What if the system won't open the app?**
 
-✅ **🌐 Flexible link jump** - The desktop jump link points to localhost:4000 by default, and supports setting custom configuration target addresses
+The beta Mac packages are signed but not yet notarized by Apple, and the Windows installer has no code signature, so the system may block them.
 
-✅ **✏️ Editor default mode** - Added editor default mode configuration, you can set the default working mode of the editor according to your personal preferences
+- **Mac**: go to System Settings → Privacy & Security and click Open Anyway.
+- **Windows**: in the SmartScreen prompt, click More info, then Run anyway.
+- **Linux**: run `chmod +x` on the AppImage to make it executable, then open it.
 
-✅ **🖼️ Cover hide control** - Added cover hide setting option, which can hide the article cover image display after turning it on
+**How does the desktop app update?**
 
-✅ **⚡ Quick deployment mode** - Added deployment skip static file generation configuration, which can be pushed directly to the warehouse after turning it on to improve deployment efficiency
+Auto-update is available from 2.1.0 Beta 2. The app downloads new versions in the background and installs them after you confirm a restart. Automatic downloads can be turned off under Settings → Help & Updates. Older versions need a manual install.
 
-* 2025-06-07 v1.2.4
+**How do I switch the plugin back to stable?**
 
-✅ Added desktop (hexo-pro-desktop) sub-project to support multi-project management and local enhanced experience
+Run `npm install --save hexo-pro@2.0.0` in the blog folder. Back up before changing versions.
 
-✅ Optimized the core API structure to improve the collaborative experience between desktop and web
+**How do I report a problem?**
 
-* 2025-05-10 v1.2.0
+Open a [GitHub issue](https://github.com/heywarms/hexo-pro/issues) or join QQ group 1009585669.
 
-✅ Added image bed management function
+## More docs
 
-✅ Added yaml configuration management
+- [Mobile app guide](https://github.com/heywarms/hexo-pro-client/blob/master/docs/MOBILE_APP.md) (Chinese)
+- [Cloud sync and source upload](https://github.com/heywarms/hexo-pro-client/blob/master/docs/SOURCE_SYNC.md) (Chinese)
+- [Editor guide](https://github.com/heywarms/hexo-pro-client/blob/master/docs/EDITOR.md) (Chinese)
+- [Agent and MCP integration](https://github.com/heywarms/hexo-pro-client/blob/master/docs/HERMES_AGENT_INTEGRATION.md)
+- [Desktop auto-update](https://github.com/heywarms/hexo-pro-desktop/blob/master/docs/AUTO_UPDATE.md) (Chinese)
 
-✅ Added settings and homepage functions
+## Changelog
 
-* 2024-08-29 v1.1.16
+Full notes and downloads for every version are on the [Releases](https://github.com/heywarms/hexo-pro/releases) page.
 
-🔧 Optimized editor experience
+**2.1.0 Beta 3 (2026-11-07)**
 
-🌗 Improved dark mode
+- Fixed Volantis installation and Stellar switching failures.
+- Fixed `hexo clean` not working with the plugin installed, which mixed old theme assets into the site after a theme change.
+- Fixed blank previews in some themes, line breaks in table cells, and password recovery.
 
-🔍 Enhanced global search function
+**2.1.0 Beta 2 (2026-10-16)**
 
----
+- The desktop app now bundles Node.js, npm, Git and a blog template, and gains auto-update.
+- Unified the light and dark interfaces and improved the block editor and GitHub sync.
 
-## 🤝 Contribute
+**2.1.0 Beta 1 (2026-10-15)**
 
-You are welcome to participate in the project in the following ways:
+- Reworked the dashboard, post list, editor and settings pages.
+- The editor can now paste images directly and resize them.
 
-* Submit Issues to report problems or suggestions
-* Submit Pull Request to contribute code
-* Join QQ group for communication: 1009585669
-  
-<div align="center">
-  <img src="docs/qq-group.png" width="150">
-</div>
+**2.1.0 Beta (2026-10-13)**
 
----
+- Added the block editor, theme preview, GitHub sync, mobile apps and MCP.
 
-## 📄 License
+<details>
+<summary>Earlier versions</summary>
 
-MIT © wuzheng
+**2.0.0 (2026-03-17)**
 
----
+- Moved the core to `2.0.0`, in line with the client and desktop versions.
+- Pinned `cheerio` to `1.0.0-rc.12` to avoid `EOVERRIDE` conflicts when publishing.
+- After upgrading from `1.x`, reinstall dependencies before starting.
 
-## ☕️ Donate
+**1.2.6 (2025-06-15)**
 
-Thank you very much for your recognition of this project! If you find it helpful, your support would mean a lot. A small gesture like buying a cup of coffee ☕️ can go a long way in helping us continue to optimize and improve the project.
+- Fixed how Front Matter Boolean values are displayed and set.
+- The desktop app can load Hexo plugins from a project's `node_modules` automatically.
+- Desktop links point to `localhost:4000` by default and can be customized.
+- Added options for the default editor mode, hiding covers, and skipping static file generation when deploying.
 
-<div align = "center">
-  <img src="docs/donate_alipay.jpg" width="150" alt="打赏二维码">
-  <img src="docs/donate_wc.jpg" width="150" alt="打赏二维码">
-</div>
+**1.2.4 (2025-06-07)**
 
----
+- Added the desktop sub-project with multi-project management.
+- Improved the core API structure for desktop and web.
 
-## 🙏 Thanks
+**1.2.0 (2025-05-10)**
 
-Thanks to the followings for their support of the project, in no particular order. Your donation is the driving force for our continued development!
+- Added image hosting, YAML config management, settings and a home page.
 
-<div align="center">
-  <table>
-    <tr>
-      <!-- 捐助者 v快 -->
-      <td align="center">
-        <img src="docs/sponsors/sponsor_vk.jpg" width="60" height="60" style="border-radius: 50%;" alt="捐助者头像"><br>
-        <sub><b>v快</b></sub>
-      </td>
-      <!-- 捐助者 神秘支持者 -->
-      <td align="center">
-        <img src="docs/sponsors/sponsor_empty.jpg" width="60" height="60" style="border-radius: 50%;" alt="捐助者头像"><br>
-        <sub><b>💝 神秘支持者</b></sub>
-      </td>
-      <!-- 捐助者 Crosery -->
-      <td align="center">
-        <img src="docs/sponsors/sponsor_crosery.png" width="60" height="60" style="border-radius: 50%;" alt="捐助者头像"><br>
-        <sub><b>Crosery</b></sub>
-      </td>
-    </tr>
-  </table>
-</div>
+**1.1.16 (2024-08-29)**
 
+- Improved the editor, dark mode and global search.
 
-> 💝 ​​Want to be a donor? Scan the QR code above to support the project, and contact us to add your avatar!
+</details>
 
----
+## Contribute
 
-If you find this project helpful, welcome:
+Issues and pull requests are welcome on [GitHub](https://github.com/heywarms/hexo-pro/issues). There's also a Chinese-language QQ group.
 
-⭐ Give a Star
+<p align="center">
+  <img src="docs/qq-group.png" width="150" alt="QR code for QQ group 1009585669"><br>
+  <sub>QQ group: 1009585669</sub>
+</p>
 
-📢 Share with more Hexo users
+## Donate
 
-💬 Provide valuable suggestions
+If you find this project helpful, a small gesture like buying a cup of coffee ☕️ helps us keep improving it.
 
-Your support will make the Hexo ecosystem stronger!
+<p align="center">
+  <img src="docs/donate_alipay.jpg" width="150" alt="Alipay donation QR code">
+  <img src="docs/donate_wc.jpg" width="150" alt="WeChat donation QR code">
+</p>
 
-## 📦 Technology stack
-- **Backend**: Node.js + Express
-- **Database**: NeDB (embedded database)
-- **Front-end**: React (hexo-pro-client)
-- **Desktop**: Electron (hexo-pro-desktop)
-- **Core dependencies**: Hexo 8.x, Fuse.js, Multer, etc.
+Thanks to the following supporters, in no particular order. Your donations keep development going!
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="docs/sponsors/sponsor_vk.jpg" width="60" height="60" alt="v快"><br>
+      <sub><b>v快</b></sub>
+    </td>
+    <td align="center">
+      <img src="docs/sponsors/sponsor_empty.jpg" width="60" height="60" alt="Anonymous supporter"><br>
+      <sub><b>神秘支持者</b></sub>
+    </td>
+    <td align="center">
+      <img src="docs/sponsors/sponsor_crosery.png" width="60" height="60" alt="Crosery"><br>
+      <sub><b>Crosery</b></sub>
+    </td>
+  </tr>
+</table>
+
+Want to be a donor? Scan the QR code above to support the project, and contact us to add your avatar.
+
+## Project structure
+
+Hexo Pro is made up of three repositories:
+
+| Repository | Contents | Built with |
+| --- | --- | --- |
+| [hexo-pro](https://github.com/heywarms/hexo-pro) (this one) | Hexo plugin, admin API, agent and MCP commands | Node.js, Express, NeDB |
+| [hexo-pro-client](https://github.com/heywarms/hexo-pro-client) | Web interface and mobile apps; also the main development repository | React, TypeScript, Capacitor |
+| [hexo-pro-desktop](https://github.com/heywarms/hexo-pro-desktop) | Desktop client | Electron |
+
+## License
+
+[MIT](./LICENSE) © [heywarms](https://github.com/heywarms)
